@@ -258,8 +258,52 @@ tbody td { padding: 12px 10px; border-top: 1px solid var(--border); }
   font-size: .95rem;
 }
 
+/* ── Label card ── */
+.label-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 2;
+  background: #f8fafc;
+}
+
+/* ── DLC date input ── */
+input[type="date"] {
+  width: 100%;
+  padding: 16px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  color: var(--text);
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color .15s;
+}
+input[type="date"]:focus { outline: none; border-color: var(--blue); }
+
+/* ── Custom text input ── */
+input[type="text"] {
+  width: 100%;
+  padding: 16px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  color: var(--text);
+  background: #fff;
+  transition: border-color .15s;
+}
+input[type="text"]:focus { outline: none; border-color: var(--blue); }
+
 /* ── Responsive tweaks ── */
 @media (max-width: 420px) {
   header h1 { font-size: 1.1rem; }
   .restaurant-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Print ── */
+@media print {
+  header, nav, .history-filters, #btn-submit, .btn-outline, #toast { display: none !important; }
+  .label-card { border: 2px solid #000; padding: 20px; font-size: 1.1rem; }
 }

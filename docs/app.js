@@ -59,7 +59,8 @@ const FRIDGES = {
 };
 
 // ── localStorage helpers ────────────────────────────────────
-const LS_KEY = "ilia_haccp_records";
+const LS_KEY     = "ilia_haccp_records";
+const LS_DLC_KEY = "ilia_haccp_dlc";
 
 function getRecords() {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
@@ -74,6 +75,19 @@ function saveRecord(record) {
   localStorage.setItem(LS_KEY, JSON.stringify(records));
 }
 
+function getDlcRecords() {
+  try { return JSON.parse(localStorage.getItem(LS_DLC_KEY) || "[]"); }
+  catch { return []; }
+}
+
+function saveDlcRecord(record) {
+  const records = getDlcRecords();
+  record.id = Date.now();
+  record.created_at = new Date().toISOString();
+  records.push(record);
+  localStorage.setItem(LS_DLC_KEY, JSON.stringify(records));
+}
+
 // ── Boot ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   const now = new Date();
@@ -81,6 +95,10 @@ document.addEventListener("DOMContentLoaded", () => {
     now.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long" });
 
   document.getElementById("hist-date").value = now.toISOString().slice(0, 10);
+
+  // Default DLC opened date to today
+  document.getElementById("dlc-opened-date").value = now.toISOString().slice(0, 10);
+  onDlcDateChange();
 
   renderRestaurantGrid();
   populateRestaurantSelects();
@@ -108,8 +126,9 @@ function renderRestaurantGrid() {
 
 function populateRestaurantSelects() {
   const options = RESTAURANTS.map(r => `<option value="${r.id}">${r.name}</option>`).join("");
-  document.getElementById("sel-restaurant").innerHTML = `<option value="">— choisir —</option>` + options;
-  document.getElementById("hist-restaurant").innerHTML = `<option value="">Tous les restaurants</option>` + options;
+  document.getElementById("sel-restaurant").innerHTML   = `<option value="">— choisir —</option>` + options;
+  document.getElementById("hist-restaurant").innerHTML  = `<option value="">Tous les restaurants</option>` + options;
+  document.getElementById("dlc-restaurant").innerHTML   = `<option value="">— choisir —</option>` + options;
 }
 
 // ── Select from Home ───────────────────────────────────────
@@ -263,6 +282,115 @@ function loadHistory() {
     html += `</tbody></table></div>`;
   }
   container.innerHTML = html;
+
+  // ── DLC Poisson du jour ──────────────────────────────────
+  const dlcContainer = document.getElementById("dlc-history-content");
+  let dlcRecords = getDlcRecords().filter(r => r.created_at.startsWith(dateStr));
+  if (rid) dlcRecords = dlcRecords.filter(r => r.restaurant_id === parseInt(rid));
+
+  if (!dlcRecords.length) {
+    dlcContainer.innerHTML = `<h3 style="margin:20px 0 10px;color:#0891b2;">🐟 DLC Poisson du jour</h3>
+      <p class="empty-state" style="padding:20px 0;">Aucune étiquette DLC pour cette sélection.</p>`;
+  } else {
+    let dlcHtml = `<h3 style="margin:20px 0 10px;color:#0891b2;">🐟 DLC Poisson du jour</h3>`;
+    dlcHtml += `<div class="table-wrapper"><table>
+      <thead><tr><th>Heure</th><th>Produit</th><th>Ouverture</th><th>DLC</th><th>Restaurant</th><th>Par</th></tr></thead>
+      <tbody>`;
+    dlcRecords.forEach(r => {
+      const time = new Date(r.created_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+      dlcHtml += `<tr>
+        <td>${time}</td>
+        <td style="font-weight:700">🐟 ${r.product}</td>
+        <td>${formatDateFR(r.opened_date)}</td>
+        <td style="font-weight:700;color:#dc2626">${formatDateFR(r.dlc_date)}</td>
+        <td>${r.restaurant_name}</td>
+        <td>${r.employee_name}</td>
+      </tr>`;
+    });
+    dlcHtml += `</tbody></table></div>`;
+    dlcContainer.innerHTML = dlcHtml;
+  }
+}
+
+// ── DLC Poisson ────────────────────────────────────────────
+
+function onDlcProductChange() {
+  const val = document.getElementById("dlc-product").value;
+  const customGroup = document.getElementById("dlc-custom-group");
+  customGroup.style.display = (val === "Autre") ? "block" : "none";
+  if (val !== "Autre") document.getElementById("dlc-product-custom").value = "";
+  updateDlcSubmitBtn();
+}
+
+function onDlcDateChange() {
+  const dateStr = document.getElementById("dlc-opened-date").value;
+  const display = document.getElementById("dlc-date-display");
+  const dlcVal  = document.getElementById("dlc-date-value");
+  if (!dateStr) { display.style.display = "none"; return; }
+  const dlcDate = new Date(dateStr);
+  dlcDate.setDate(dlcDate.getDate() + 2);
+  dlcVal.textContent = dlcDate.toLocaleDateString("fr-FR");
+  display.style.display = "block";
+  updateDlcSubmitBtn();
+}
+
+function getDlcDateValue() {
+  const dateStr = document.getElementById("dlc-opened-date").value;
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + 2);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDateFR(isoStr) {
+  if (!isoStr) return "";
+  const [y, m, d] = isoStr.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function updateDlcSubmitBtn() {
+  const rid      = document.getElementById("dlc-restaurant").value;
+  const product  = document.getElementById("dlc-product").value;
+  const custom   = document.getElementById("dlc-product-custom").value.trim();
+  const dateStr  = document.getElementById("dlc-opened-date").value;
+  const employee = document.getElementById("dlc-employee").value;
+  const ok = rid && product && (product !== "Autre" || custom) && dateStr && employee;
+  document.getElementById("btn-dlc-submit").disabled = !ok;
+}
+
+function submitDlcRecord() {
+  const rid       = parseInt(document.getElementById("dlc-restaurant").value);
+  const resto     = RESTAURANTS.find(r => r.id === rid);
+  const product   = document.getElementById("dlc-product").value;
+  const custom    = document.getElementById("dlc-product-custom").value.trim();
+  const openedDate = document.getElementById("dlc-opened-date").value;
+  const dlcDate   = getDlcDateValue();
+  const employee  = document.getElementById("dlc-employee").value;
+  const productName = (product === "Autre") ? custom : product;
+
+  const record = {
+    restaurant_id:   rid,
+    restaurant_name: resto ? resto.name : "",
+    product:         productName,
+    product_custom:  (product === "Autre") ? custom : "",
+    opened_date:     openedDate,
+    dlc_date:        dlcDate,
+    employee_name:   employee,
+  };
+
+  saveDlcRecord(record);
+  toast("✅ Étiquette enregistrée !");
+
+  // Show label preview
+  const card = document.getElementById("dlc-label-card");
+  card.innerHTML = `
+    <div style="font-size:1.4rem;font-weight:700;margin-bottom:12px;">🐟 ${productName}</div>
+    <div>Ouverture : <strong>${formatDateFR(openedDate)}</strong></div>
+    <div>DLC : <strong>${formatDateFR(dlcDate)}</strong></div>
+    <div>Restaurant : <strong>${resto ? resto.name : ""}</strong></div>
+    <div>Par : <strong>${employee}</strong></div>
+  `;
+  document.getElementById("dlc-label-preview").style.display = "block";
 }
 
 // ── Toast ──────────────────────────────────────────────────

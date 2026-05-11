@@ -20,6 +20,7 @@
   <button class="active" data-page="home"    onclick="showPage('home')">🏠 Accueil</button>
   <button              data-page="entry"   onclick="showPage('entry')">✏️ Saisie</button>
   <button              data-page="history" onclick="showPage('history')">📋 Historique</button>
+  <button              data-page="dlc"     onclick="showPage('dlc')">🐟 DLC Poisson</button>
 </nav>
 
 <main>
@@ -85,6 +86,77 @@
     <button class="btn btn-outline" onclick="showPage('home')">← Retour</button>
   </section>
 
+  <!-- PAGE DLC POISSON -->
+  <section id="page-dlc" class="page">
+
+    <div class="form-group">
+      <label for="dlc-restaurant">Restaurant</label>
+      <select id="dlc-restaurant" onchange="updateDlcSubmitBtn()">
+        <option value="">— choisir —</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="dlc-product">Produit</label>
+      <select id="dlc-product" onchange="onDlcProductChange()">
+        <option value="">— choisir —</option>
+        <option>Saumon entier</option>
+        <option>Filet de saumon</option>
+        <option>Daurade entière</option>
+        <option>Filet de daurade</option>
+        <option>Bar entier</option>
+        <option>Filet de bar</option>
+        <option>Thon</option>
+        <option>Crevettes</option>
+        <option>Poulpe</option>
+        <option value="Autre">Autre (saisie libre)</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="dlc-custom-group" style="display:none;">
+      <label for="dlc-product-custom">Nom du produit (libre)</label>
+      <input type="text" id="dlc-product-custom" placeholder="ex: Saint-Jacques" oninput="updateDlcSubmitBtn()" />
+    </div>
+
+    <div class="form-group">
+      <label for="dlc-opened-date">Date d'ouverture</label>
+      <input type="date" id="dlc-opened-date" onchange="onDlcDateChange()" />
+    </div>
+
+    <div id="dlc-date-display" style="display:none; margin-bottom:20px; padding:14px 16px;
+         background:#dbeafe; border-radius:12px; color:#1a6bcc;">
+      DLC calculée : <strong id="dlc-date-value" style="font-size:1.1rem;"></strong>
+    </div>
+
+    <div class="form-group">
+      <label for="dlc-employee">Employé</label>
+      <select id="dlc-employee" onchange="updateDlcSubmitBtn()">
+        <option value="">— choisir —</option>
+        <option>Julien</option>
+        <option>Guillaume</option>
+        <option>Thomas</option>
+        <option>Marie</option>
+        <option>Lucas</option>
+        <option>Sophie</option>
+        <option>Alex</option>
+        <option>Camille</option>
+      </select>
+    </div>
+
+    <button class="btn btn-success" id="btn-dlc-submit" onclick="submitDlcRecord()" disabled>
+      🖨️ Enregistrer l'étiquette
+    </button>
+    <button class="btn btn-outline" onclick="showPage('home')">← Retour</button>
+
+    <div id="dlc-label-preview" style="display:none; margin-top:24px;">
+      <div class="label-card" id="dlc-label-card"></div>
+      <button class="btn btn-primary" style="margin-top:12px;" onclick="window.print()">
+        🖨️ Imprimer
+      </button>
+    </div>
+
+  </section>
+
   <!-- PAGE HISTORY -->
   <section id="page-history" class="page">
 
@@ -99,6 +171,8 @@
     <div id="history-content">
       <p class="empty-state">Sélectionnez un filtre pour afficher les relevés.</p>
     </div>
+
+    <div id="dlc-history-content" style="margin-top:28px;"></div>
 
   </section>
 
