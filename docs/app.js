@@ -9,6 +9,9 @@ const RESTAURANTS = [
   { id: 5523, name: "Washington" },
   { id: 5829, name: "Casanova" },
   { id: 5830, name: "Rivière" },
+  { id: 5831, name: "La Défense 1" },
+  { id: 5832, name: "Caumartin" },
+  { id: 5833, name: "Bourse" },
 ];
 
 const FRIDGES = {
@@ -37,6 +40,21 @@ const FRIDGES = {
     { id: 14, name: "Frigo 1", type: "froid",      min_temp: 0, max_temp: 4 },
     { id: 15, name: "Frigo 2", type: "froid",      min_temp: 0, max_temp: 4 },
     { id: 16, name: "Congélateur", type: "congelateur", min_temp: -25, max_temp: -18 },
+  ],
+  5831: [
+    { id: 17, name: "Frigo 1", type: "froid",      min_temp: 0, max_temp: 4 },
+    { id: 18, name: "Frigo 2", type: "froid",      min_temp: 0, max_temp: 4 },
+    { id: 19, name: "Congélateur", type: "congelateur", min_temp: -25, max_temp: -18 },
+  ],
+  5832: [
+    { id: 20, name: "Frigo 1", type: "froid",      min_temp: 0, max_temp: 4 },
+    { id: 21, name: "Frigo 2", type: "froid",      min_temp: 0, max_temp: 4 },
+    { id: 22, name: "Congélateur", type: "congelateur", min_temp: -25, max_temp: -18 },
+  ],
+  5833: [
+    { id: 23, name: "Frigo 1", type: "froid",      min_temp: 0, max_temp: 4 },
+    { id: 24, name: "Frigo 2", type: "froid",      min_temp: 0, max_temp: 4 },
+    { id: 25, name: "Congélateur", type: "congelateur", min_temp: -25, max_temp: -18 },
   ],
 };
 
