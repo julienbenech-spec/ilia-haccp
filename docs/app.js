@@ -5,7 +5,7 @@
 // ── Data ────────────────────────────────────────────────────
 const RESTAURANTS = [
   { id: 3287, name: "Mathurins" },
-  { id: 4240, name: "Vernier" },
+  { id: 4240, name: "Delivery Hub" },
   { id: 5523, name: "Washington" },
   { id: 5829, name: "Casanova" },
   { id: 5830, name: "Rivière" },
